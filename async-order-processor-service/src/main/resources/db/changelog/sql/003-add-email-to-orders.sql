@@ -1,0 +1,1 @@
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS email VARCHAR(255) NOT NULL DEFAULT 'example@example.com';

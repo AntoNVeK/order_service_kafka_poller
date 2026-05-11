@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: external-http-stub-service
+  threads:
+    virtual:
+      enabled: ${SPRING_THREADS_VIRTUAL_ENABLED:false}
+
+stub:
+  # inventory API
+  inventory-reject-enabled: ${STUB_INVENTORY_REJECT_ENABLED:false}
+  inventory-latency-min-millis: ${STUB_INVENTORY_LATENCY_MIN_MILLIS:0}
+  inventory-latency-max-millis: ${STUB_INVENTORY_LATENCY_MAX_MILLIS:0}
+  inventory-reject-probability: ${STUB_INVENTORY_REJECT_PROBABILITY:0.00}
+
+  # pricing API
+  pricing-exception-enabled: ${STUB_PRICING_EXCEPTION_ENABLED:false}
+  pricing-latency-min-millis: ${STUB_PRICING_LATENCY_MIN_MILLIS:0}
+  pricing-latency-max-millis: ${STUB_PRICING_LATENCY_MAX_MILLIS:0}
+  pricing-exception-probability: ${STUB_PRICING_EXCEPTION_PROBABILITY:0.00}
+
+  # shipping API
+  shipping-exception-enabled: ${STUB_SHIPPING_EXCEPTION_ENABLED:false}
+  shipping-latency-min-millis: ${STUB_SHIPPING_LATENCY_MIN_MILLIS:0}
+  shipping-latency-max-millis: ${STUB_SHIPPING_LATENCY_MAX_MILLIS:0}
+  shipping-exception-probability: ${STUB_SHIPPING_EXCEPTION_PROBABILITY:0.00}
