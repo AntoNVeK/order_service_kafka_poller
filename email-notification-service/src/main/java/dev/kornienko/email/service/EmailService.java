@@ -38,7 +38,7 @@ public class EmailService {
                 event.price(),
                 event.etaDays()
         );
-        sendEmail(event.email(), "✅ Order Completed", text);
+        sendEmail(event.email(), "Order Completed", text);
     }
 
     public void sendFailureEmail(OrderFailedEvent event) {
@@ -60,7 +60,7 @@ public class EmailService {
                 event.description(),
                 event.cancellationReason()
         );
-        sendEmail(event.email(), "❌ Order Failed", text);
+        sendEmail(event.email(), "Order Failed", text);
     }
 
     private void sendEmail(String to, String subject, String text) {
