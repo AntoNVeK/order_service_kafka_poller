@@ -19,13 +19,15 @@ public class OrderService {
 
     public OrderEntity createOrder(
             String address,
-            String description
+            String description,
+            String email
     ) {
-        log.info("Creating order with address {}, description {}", address, description);
+        log.info("Creating order with address {}, description {}, email {}", address, description, email);
         var entity = OrderEntity.builder()
                 .status(OrderStatus.CREATION_PENDING)
                 .address(address)
                 .description(description)
+                .email(email)
                 .build();
 
         return txTemplate.execute(status -> {

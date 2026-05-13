@@ -1,0 +1,105 @@
+services:
+  postgres:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: orders
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+    ports:
+      - "5432:5432"
+    mem_limit: 384m
+    cpus: "1.5"
+
+  external-stub:
+    image: external-http-stub-service:latest
+    environment:
+      SERVER_PORT: 8081
+      SPRING_THREADS_VIRTUAL_ENABLED: false
+      STUB_INVENTORY_REJECT_ENABLED: false
+      STUB_INVENTORY_LATENCY_MIN_MILLIS: 100
+      STUB_INVENTORY_LATENCY_MAX_MILLIS: 100
+      STUB_INVENTORY_REJECT_PROBABILITY: 0
+      STUB_PRICING_EXCEPTION_ENABLED: false
+      STUB_PRICING_LATENCY_MIN_MILLIS: 100
+      STUB_PRICING_LATENCY_MAX_MILLIS: 100
+      STUB_PRICING_EXCEPTION_PROBABILITY: 0
+      STUB_SHIPPING_EXCEPTION_ENABLED: false
+      STUB_SHIPPING_LATENCY_MIN_MILLIS: 100
+      STUB_SHIPPING_LATENCY_MAX_MILLIS: 100
+      STUB_SHIPPING_EXCEPTION_PROBABILITY: 0
+    ports:
+      - "8081:8081"
+    mem_limit: 384m
+    cpus: "1.5"
+
+  kafka:
+    image: apache/kafka:latest
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
+    mem_limit: 512m
+    cpus: "1"
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    mem_limit: 128m
+    cpus: "0.5"
+
+  email-service:
+    build: ../email-notification-service
+    ports:
+      - "8082:8082"
+    depends_on:
+      - kafka
+      - mailhog
+    environment:
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      MAIL_HOST: mailhog
+      MAIL_PORT: 1025
+    mem_limit: 256m
+    cpus: "1"
+
+  order-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/orders
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: pass
+      SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE: 100
+      STUB_BASE_URL: http://external-stub:8081/order-stub
+      STUB_BASE_READ_TIMEOUT: 10s
+      STUB_BASE_CONNECT_TIMEOUT: 10s
+      SPRING_THREADS_VIRTUAL_ENABLED: false
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+
+      # task execution
+      TASK_EXEC_POLL_INTERVAL_MS: 10
+      TASK_EXEC_POLL_BATCH_SIZE: 100
+      TASK_EXEC_POLL_RETRY_DELAY: 30s
+      TASK_EXEC_DISPATCHER_MAX_ATTEMPTS: 10
+      TASK_EXEC_DISPATCHER_RETRY_DELAY: 1s
+      TASK_EXEC_DISPATCHER_THREAD_POOL_SIZE: 100
+      TASK_EXEC_EXTERNAL_HTTP_THREAD_POOL_SIZE: 100
+
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+      - external-stub
+      - kafka
+      - mailhog
+    mem_limit: 512m
+    cpus: "3"

@@ -2,15 +2,16 @@ spring:
   application:
     name: order-processor-service
   datasource:
-    url: ${SPRING_DATASOURCE_URL:not-set}
-    username: ${SPRING_DATASOURCE_USERNAME:not-set}
-    password: ${SPRING_DATASOURCE_PASSWORD:not-set}
+    url: jdbc:postgresql://localhost:5432/orders
+    username: user
+    password: pass
     hikari:
       maximum-pool-size: 100
   liquibase:
     change-log: classpath:/db/changelog/changelog-master.yaml
   docker:
     compose:
+      enabled: false
       file: dev-compose.yaml
       lifecycle-management: start-and-stop   # поднимает при старте, останавливает при завершении
       start:
@@ -23,7 +24,7 @@ spring:
       enabled: ${SPRING_THREADS_VIRTUAL_ENABLED:false} # каждый запрос в своем виртуальном потоке
 
   kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    bootstrap-servers: localhost:29092
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer

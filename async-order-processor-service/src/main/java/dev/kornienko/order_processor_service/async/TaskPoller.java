@@ -23,14 +23,14 @@ public class TaskPoller {
 
     @Scheduled(fixedDelayString = "${task-execution.poller.poll-interval-ms}")
     public void poll() {
-        log.info("Starting polling tasks");
+//        log.info("Starting polling tasks");
         List<AsyncTaskEntity> tasksBatch = pickTasksForProcessing();
 
         var tasksIds = tasksBatch.stream()
                 .map(AsyncTaskEntity::getId)
                 .toList();
-        log.info("Successfully picked tasks: count={}, ids={}",
-                tasksIds.size(), tasksIds);
+//        log.info("Successfully picked tasks: count={}, ids={}",
+//                tasksIds.size(), tasksIds);
 
         if (tasksBatch.isEmpty()) {
             return;

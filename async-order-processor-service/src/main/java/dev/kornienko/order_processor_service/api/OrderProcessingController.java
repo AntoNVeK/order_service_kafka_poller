@@ -24,7 +24,7 @@ public class OrderProcessingController {
             @RequestBody OrderCreateRequestDto requestDto
     ) {
         log.info("Received request to create order");
-        OrderEntity entity = orderService.createOrder(requestDto.address(), requestDto.description());
+        OrderEntity entity = orderService.createOrder(requestDto.address(), requestDto.description(), requestDto.email());
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(mapEntityToDto(entity));

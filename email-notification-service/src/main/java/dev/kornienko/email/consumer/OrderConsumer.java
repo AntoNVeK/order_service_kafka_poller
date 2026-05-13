@@ -13,21 +13,25 @@ public class OrderConsumer {
 
     private final EmailService emailService;
 
-    public OrderConsumer(EmailService emailService) {
-        this.emailService = emailService;
-    }
+     public OrderConsumer(EmailService emailService) {
+         this.emailService = emailService;
+     }
 
-    @KafkaListener(topics = "order-completed", groupId = "email-group")
+    @KafkaListener(
+            topics = "order-completed",
+            containerFactory = "completedFactory"
+    )
     public void handleOrderCompleted(OrderCompletedEvent event) {
-        log.info("Received OrderCompletedEvent: orderId={}, email={}", 
-            event.orderId(), event.email());
+        log.info("Completed: {}", event.orderId());
         emailService.sendSuccessEmail(event);
     }
 
-    @KafkaListener(topics = "order-failed", groupId = "email-group")
+    @KafkaListener(
+            topics = "order-failed",
+            containerFactory = "failedFactory"
+    )
     public void handleOrderFailed(OrderFailedEvent event) {
-        log.info("Received OrderFailedEvent: orderId={}, email={}, reason={}", 
-            event.orderId(), event.email(), event.cancellationReason());
+        log.info("Failed: {}", event.orderId());
         emailService.sendFailureEmail(event);
     }
 }
